@@ -8,10 +8,7 @@ function ca_service_permission() {
     'ca service import data' => array(
       'title' => t('Import custom data'),
       'description' => t('Perform for importing random data.'),
-    ),
-    // 'ca service import data',
-    // 'ca service create ca node',
-    // 'ca service edit own ca node'
+    )
   );
 }
 
@@ -21,23 +18,6 @@ function ca_service_permission() {
 function ca_service_services_resources() {
   return array(
     'ca' => array(
-
-#      'retrieve' => array(
-#        'file' => array('type' => 'inc', 'module' => 'ca_service', 'name' => 'ca_service'),
-#        'callback' => '_ca_resource_retrieve',
-#        'args' => array(
-#          array(
-#            'name' => 'nid',
-#            'optional' => FALSE,
-#            'source' => array('path' => 0),
-#            'type' => 'int',
-#            'description' => 'The nid of the node to get',
-#          ),
-#        ),
-#        'access callback' => '_ca_resource_access',
-#        'access arguments' => array('view'),
-#        'access arguments append' => TRUE,
-#      ),
 
       'index' => array(
         'file' => array('type' => 'inc', 'module' => 'ca_service', 'name' => 'ca_service'),
