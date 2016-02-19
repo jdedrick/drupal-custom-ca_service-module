@@ -1,0 +1,6 @@
+name = CA Service
+description = JD: This is a module for importing custom data via web services
+package = Custom
+
+core = 7.x
+php = 5.x

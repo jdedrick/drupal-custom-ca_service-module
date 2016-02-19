@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * Implementation of hook_perm().
+ */
+function ca_service_permission() {
+  return array(
+    'ca service import data' => array(
+      'title' => t('Import custom data'),
+      'description' => t('Perform for importing random data.'),
+    ),
+    // 'ca service import data',
+    // 'ca service create ca node',
+    // 'ca service edit own ca node'
+  );
+}
+
+/**
+ * Implementation of hook_services_resources().
+ */
+function ca_service_services_resources() {
+  return array(
+    'ca' => array(
+
+#      'retrieve' => array(
+#        'file' => array('type' => 'inc', 'module' => 'ca_service', 'name' => 'ca_service'),
+#        'callback' => '_ca_resource_retrieve',
+#        'args' => array(
+#          array(
+#            'name' => 'nid',
+#            'optional' => FALSE,
+#            'source' => array('path' => 0),
+#            'type' => 'int',
+#            'description' => 'The nid of the node to get',
+#          ),
+#        ),
+#        'access callback' => '_ca_resource_access',
+#        'access arguments' => array('view'),
+#        'access arguments append' => TRUE,
+#      ),
+
+      'index' => array(
+        'file' => array('type' => 'inc', 'module' => 'ca_service', 'name' => 'ca_service'),
+        'callback' => '_ca_service_index',
+#        'args' => array(
+#          array(
+#            'name' => 'page',
+#            'optional' => TRUE,
+#            'type' => 'int',
+#            'description' => 'The zero-based index of the page to get, defaults to 0.',
+#            'default value' => 0,
+#            'source' => array('param' => 'page'),
+#          ),
+#          array(
+#            'name' => 'fields',
+#            'optional' => TRUE,
+#            'type' => 'string',
+#            'description' => 'The fields to get.',
+#            'default value' => '*',
+#            'source' => array('param' => 'fields'),
+#          ),
+#          array(
+#            'name' => 'parameters',
+#            'optional' => TRUE,
+#            'type' => 'array',
+#            'description' => 'Parameters array',
+#            'default value' => array(),
+#            'source' => array('param' => 'parameters'),
+#          ),
+#          array(
+#            'name' => 'pagesize',
+#            'optional' => TRUE,
+#            'type' => 'init',
+#            'description' => 'Number of records to get per page.',
+#            'default value' => variable_get('services_node_index_page_size', 20),
+#            'source' => array('param' => 'pagesize'),
+#          ),
+#        ),
+#        'access arguments' => array('access content'),
+      ),
+      /**
+        * JD: just a note that non-standard restful methods seem to have to be defined inside the 'actions' array
+        */
+      'actions' => array(
+        'importData' => array(
+          'help' => 'Custom method',
+          'callback' => '_ca_service_import',
+          'args' => array(
+            array(
+              'name' => 'data',
+              'type' => 'string',
+              'description' => 'The user data',
+              'source' => 'data',
+              'optional' => FALSE,
+            ),
+          ),
+          'file' => array('type' => 'inc', 'module' => 'ca_service', 'name' => 'ca_service'),
+          'access callback' => '_ca_service_access',
+          'access arguments' => array('ca service import data'),
+        ),
+      ),
+    ),
+  );
+}
+
+
+/*
+ * Implementation of hook_node_info
+ */
+function ca_service_node_info() {
+  return array(
+    'ca_node' => array(
+      'name' => t('ca node'),
+      'module' => 'ca_service',
+      'description' => 'This is a ca service node type',
+    )
+  );
+}
+
+/*
+ * Implementation of hook_access
+ */
+function ca_service_access($op, $node, $account) {
+  if ($op == 'create') {
+    return user_access('ca service create ca node', $account);
+  }
+
+  if ($op == 'update' || $op == 'delete') {
+    if (user_access('ca service edit own ca node', $account) && ($account->uid == $node->uid)) {
+      return true;
+    }
+  }
+}
+
+
+/*
+ * Implementation of hook_form
+ */
+function ca_service_form(&$node, $form_state) {
+  $type = node_get_types('type', $node);
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#required' => true,
+    '#default_value' => $node->title,
+    '#weight' => -5
+  );
+
+  $form['body_filter']['body'] = array(
+    '#type' => 'textarea',
+    '#title' => check_plain($type->body_label),
+    '#default_value' => $node->body,
+    '#required' => false
+  );
+
+  $form['body_filter']['filter'] = filter_form($node->format);
+
+  return $form;
+}
